@@ -1,3 +1,4 @@
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -13,7 +14,7 @@ public class Main {
             Player player = new Player(mapData.getPlayerStart());
 
             // Create enemies based on the starting positions defined in the map data. Currently, enemy classess are not implemented, you should implement them based on the specifications given.
-            Enemy[] enemies = new Enemy[]{new Pinky(mapData.getPinkyStart()), new Inky(mapData.getInkyStart()), new Blinky(mapData.getBlinkyStart())};
+            Enemy[] enemies = new Enemy[]{new Pinky(mapData.getPinkyStart(),new BFSPathFinder()), new Inky(mapData.getInkyStart(),new BFSPathFinder()), new Blinky(mapData.getBlinkyStart(),new BFSPathFinder())};
 
             // Initialize the game with the player, enemies, and map data. You should also complete the Game class to handle game logic, state management, and interactions between the player and enemies.
             Game game = new Game(player, enemies, mapData);
@@ -22,7 +23,50 @@ public class Main {
             // You should have a game loop here that updates the game state and calls tickAnimation() and drawGame() repeatedly, but for simplicity, we just draw the initial state.
             GameRenderer renderer = new GameRenderer(mapData, game);
             renderer.setupDraw();
-            renderer.drawGame();
+
+            while(true){
+                if (StdDraw.isKeyPressed(KeyEvent.VK_SPACE) && game.getGameState()==Game.GameState.START_SCREEN){
+                    game.setGameState(Game.GameState.READY);
+                }
+
+                // moving from ready state to playing state when player wants to move
+                if (game.getGameState()==Game.GameState.READY){
+                    if (StdDraw.isKeyPressed(KeyEvent.VK_UP)){
+                        game.setGameState(Game.GameState.PLAYING);
+                        player.setRequestedDirection(Game.Direction.UP);
+                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_DOWN)) {
+                        game.setGameState(Game.GameState.PLAYING);
+                        player.setRequestedDirection(Game.Direction.DOWN);
+                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_LEFT)) {
+                        game.setGameState(Game.GameState.PLAYING);
+                        player.setRequestedDirection(Game.Direction.LEFT);
+                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_RIGHT)) {
+                        game.setGameState(Game.GameState.PLAYING);
+                        player.setRequestedDirection(Game.Direction.RIGHT);
+                    }
+                }
+
+                // taking direction requests
+                if (game.getGameState()==Game.GameState.PLAYING){
+                    if (StdDraw.isKeyPressed(KeyEvent.VK_UP)){
+                        player.setRequestedDirection(Game.Direction.UP);
+                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_DOWN)) {
+                        player.setRequestedDirection(Game.Direction.DOWN);
+                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_LEFT)) {
+                        player.setRequestedDirection(Game.Direction.LEFT);
+                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_RIGHT)) {
+                        player.setRequestedDirection(Game.Direction.RIGHT);
+                    }
+
+                    game.update();
+                }
+
+                renderer.tickAnimation();
+                renderer.drawGame();
+                StdDraw.pause(40);
+
+            }
+
         }
         catch (FileNotFoundException e) {
             System.out.println("Map file could not be loaded.");

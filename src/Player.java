@@ -21,6 +21,49 @@ public class Player {
 
     }
 
+    public void nextMove(MapData mapData){
+
+        // to prevent bugs from comparing double and int strictly, we check for extremely small difference
+        if (Math.abs(visualRow-pos.getRow())<0.06 && Math.abs(visualCol-pos.getCol())<0.06){
+            int nextRow=pos.getRow()+requestedDirection.getDRow();
+            int nextCol=pos.getCol()+requestedDirection.getDCol();
+            if (mapData.isValidMove(nextRow,nextCol)){
+                currentDirection=requestedDirection;
+            }
+            nextRow=pos.getRow()+currentDirection.getDRow();
+            nextCol=pos.getCol()+currentDirection.getDCol();
+
+            if (mapData.isValidMove(nextRow,nextCol)){
+                moving=true;
+            } else {
+                moving=false;
+            }
+
+        }
+
+        if (moving){
+            visualRow+=currentDirection.getDRow()*0.10;
+            visualCol+=currentDirection.getDCol()*0.10;
+        }
+
+        // snaps the row and column to prevent decimal error
+        int roundedRow = (int) Math.round(visualRow);
+        int roundedCol = (int) Math.round(visualCol);
+
+        if (Math.abs(visualRow-roundedRow)<0.001){
+            visualRow=roundedRow;
+
+        }
+        if (Math.abs(visualCol-roundedCol)<0.001){
+            visualCol=roundedCol;
+        }
+
+        // (if player snapped on the row and on the column) and (if row or column have changed)
+        if ((visualRow==roundedRow && visualCol==roundedCol) && (visualRow!= pos.getRow() || visualCol!=pos.getCol())){
+            pos=new Position(roundedRow,roundedCol);
+        }
+    }
+
     public boolean isMoving() {
         return moving;
     }
@@ -49,4 +92,8 @@ public class Player {
         return score;
     }
 
+    // requestedDirection setter
+    public void setRequestedDirection(Game.Direction requestedDirection) {
+        this.requestedDirection = requestedDirection;
+    }
 }
