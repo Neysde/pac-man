@@ -25,9 +25,10 @@ public class Main {
             GameRenderer renderer = new GameRenderer(mapData, game);
             renderer.setupDraw();
 
-
+            // to prevent flickering when pressing these keys we store their previous press values
             boolean wasPauseKeyPressed=false;
             boolean wasRestartKeyPressed=false;
+
             long startTime=0; // stores the exact time in miliseconds when user pressed space at start.
             while(true){
                 if (StdDraw.isKeyPressed(KeyEvent.VK_SPACE) && game.getGameState()==Game.GameState.START_SCREEN){
@@ -38,8 +39,8 @@ public class Main {
                 // moving from ready state to playing state when player wants to move
                 if (game.getGameState()==Game.GameState.READY){
 
-                    long elapsedTime=System.currentTimeMillis()-startTime;
-                    if (elapsedTime>=1000){
+                    long elapsedTime=System.currentTimeMillis()-startTime; // calculates how much time passed since player pressed space
+                    if (elapsedTime>=1000){ // after 1 second start the game actually by setting the state to playing
                         game.setGameState(Game.GameState.PLAYING);
                         game.getPlayer().setRequestedDirection(Game.Direction.NONE); // player has direction right by default
                     }
@@ -57,18 +58,19 @@ public class Main {
                         game.getPlayer().setRequestedDirection(Game.Direction.RIGHT);
                     }
 
-                    game.setGameState(game.update());
+                    game.setGameState(game.update()); // if game state is playing update the player, enemy movements and set the game state each time what it returns
                 }
 
-                // pause logic
+                // pause logic. must be in playing state or paused state at first
                 if (game.getGameState()==Game.GameState.PLAYING || game.getGameState()==Game.GameState.PAUSED){
-                    if (StdDraw.isKeyPressed(KeyEvent.VK_P) && !wasPauseKeyPressed){
+                    if (StdDraw.isKeyPressed(KeyEvent.VK_P) && !wasPauseKeyPressed){ // only pauses when pressed and was not pressed the previous frame
                         if (game.getGameState()==Game.GameState.PLAYING){
                             game.setGameState(Game.GameState.PAUSED);
                         } else {
                             game.setGameState(Game.GameState.PLAYING);
                         }
                     }
+                    // save the key status to prevent flickering
                     if (StdDraw.isKeyPressed(KeyEvent.VK_P)){
                         wasPauseKeyPressed=true;
                     } else {
@@ -84,10 +86,11 @@ public class Main {
                 // when player lost or won, handles restart and quit operations
                 if (game.getGameState()==Game.GameState.LOST || game.getGameState()==Game.GameState.WON){
                     // restart logic
-                    if (StdDraw.isKeyPressed(KeyEvent.VK_R) && !wasRestartKeyPressed){
+                    if (StdDraw.isKeyPressed(KeyEvent.VK_R) && !wasRestartKeyPressed){ // only pauses when pressed and was not pressed the previous frame
                         game.restartGame();
                         game.setGameState(Game.GameState.START_SCREEN);
                     }
+                    // save the key status to prevent flickering
                     if (StdDraw.isKeyPressed(KeyEvent.VK_R)){
                         wasRestartKeyPressed=true;
                     } else {
@@ -95,9 +98,9 @@ public class Main {
                     }
                 }
 
-                renderer.tickAnimation();
-                renderer.drawGame();
-                StdDraw.pause(40);
+                renderer.tickAnimation(); // updates animation state
+                renderer.drawGame(); // drawer function
+                StdDraw.pause(40); // fps=1000/t
 
             }
 

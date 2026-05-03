@@ -5,7 +5,7 @@ public class Pinky extends Enemy {
     }
 
     public Position selectTarget(Player player, MapData mapData){
-        return player.getPos();
+        return player.getPos(); // follows player constantly
     }
 
 }

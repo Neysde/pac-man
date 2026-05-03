@@ -11,32 +11,33 @@ public class BFSPathFinder {
         }
 
         Queue<Position> tiles = new Queue<>(); // positions stacked in queue
-        tiles.enqueue(start); // start from the start
+        tiles.enqueue(start); // start from the start pos
 
-        boolean[][] visited = new boolean[mapData.getRows()][mapData.getCols()]; // visited positions
+        boolean[][] visited = new boolean[mapData.getRows()][mapData.getCols()]; // visited positions (if visited=true in their row and col indexes)
 
         Position[][] parent = new Position[mapData.getRows()][mapData.getCols()]; // you use the coordinates of neighbor as the index to store the position of where you came from
 
-        visited[start.getRow()][start.getCol()]=true;
+        visited[start.getRow()][start.getCol()]=true; // start pos initially visited
 
 
 
         // checks until there is no position left on the queue
         while(!tiles.isEmpty()){
             Position current = tiles.dequeue();
-            if (current.equals(goal)){
+            if (current.equals(goal)){ // if tile we are checking is goal, there is no need to look more
                 break;
             }
 
             // checks the directions in UP->DOWN->LEFT->RIGHT order (defined a new array containing the direction to eliminate checking NONE direction)
             for (Game.Direction dir : new Game.Direction[]{Game.Direction.UP, Game.Direction.DOWN, Game.Direction.LEFT, Game.Direction.RIGHT}){
+                // check the next position is valid or not visited by UP->DOWN->LEFT->RIGHT order
                 int nextRow = current.getRow()+dir.getDRow();
                 int nextCol = current.getCol()+dir.getDCol();
 
                 if (mapData.isValidMove(nextRow,nextCol) && !visited[nextRow][nextCol]){ // if the neighbor is not a wall and not visited
                     visited[nextRow][nextCol]=true; // go to the neighbor
                     parent[nextRow][nextCol]=current; // indicates the neighbor tile was reached from the current tile
-                    tiles.enqueue(new Position(nextRow,nextCol));
+                    tiles.enqueue(new Position(nextRow,nextCol)); // adds this new tile to queue
                 }
             }
         }
@@ -56,7 +57,7 @@ public class BFSPathFinder {
         }
         path.add(start); // while loop breaks when currentStep equals start so start position is also needed to add to the path
 
-        Collections.reverse(path); // reverses the positions to make them start from the start and end at the goal
+        Collections.reverse(path); // reverses the positions to make them start from the start pos and end at the goal pos
 
         return path;
 

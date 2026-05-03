@@ -46,9 +46,10 @@ public class Game {
         }
     }
 
+    // handles player and enemy movement, collisions, states by returning game states
     public GameState update(){
         player.nextMove(mapData);
-        for (Enemy enemy : enemies){
+        for (Enemy enemy : enemies){ // get each enemy, move them according each of their movement logic and if they collide with player game over
             enemy.move(player,mapData);
             if (checkCollision(player,enemy)){
                 System.out.println("Game Over");
@@ -56,13 +57,14 @@ public class Game {
             }
         }
 
-        if (player.getScore()/10==pelletCount){
+        if (player.getScore()/10==pelletCount){ // when player collects all pellets (each pellet gives +10 score)
             return GameState.WON;
         }
-        return GameState.PLAYING;
+        return GameState.PLAYING; // by default return playing state and keep updating the entity movements in main game loop
 
     }
 
+    // collision checker
     public boolean checkCollision(Player player, Enemy enemy){
         double playerRow = player.getVisualRow();
         double playerCol = player.getVisualCol();
@@ -70,6 +72,7 @@ public class Game {
         double enemyRow = enemy.getVisualRow();
         double enemyCol = enemy.getVisualCol();
 
+        // if they both in the same column and same row visually, they are colliding
         if (Math.abs(playerRow-enemyRow)<0.50 && Math.abs(playerCol-enemyCol)<0.50){
             return true;
         }
@@ -77,14 +80,15 @@ public class Game {
         return false;
     }
 
+    // restart function
     public void restartGame(){
-        for (int i=0;i< mapData.getRows();i++){
+        for (int i=0;i< mapData.getRows();i++){ // restores all pellets by looping all map row and cols
             for (int j=0;j< mapData.getCols();j++){
                 mapData.restorePellet(i,j);
             }
         }
-        player = new Player(mapData.getPlayerStart());
-        enemies = new Enemy[]{new Pinky(mapData.getPinkyStart(),new BFSPathFinder()), new Inky(mapData.getInkyStart(),new BFSPathFinder()), new Blinky(mapData.getBlinkyStart(),new BFSPathFinder())};
+        player = new Player(mapData.getPlayerStart()); // resets player object by creating a new player object
+        enemies = new Enemy[]{new Pinky(mapData.getPinkyStart(),new BFSPathFinder()), new Inky(mapData.getInkyStart(),new BFSPathFinder()), new Blinky(mapData.getBlinkyStart(),new BFSPathFinder())}; // resets enemies by creating each of them again
     }
 
     public Player getPlayer() {
