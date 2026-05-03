@@ -41,7 +41,7 @@ public class Main {
                     long elapsedTime=System.currentTimeMillis()-startTime;
                     if (elapsedTime>=1000){
                         game.setGameState(Game.GameState.PLAYING);
-                        game.getPlayer().setRequestedDirection(Game.Direction.RIGHT); // player has direction right by default
+                        game.getPlayer().setRequestedDirection(Game.Direction.NONE); // player has direction right by default
                     }
                 }
 

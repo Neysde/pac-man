@@ -33,7 +33,9 @@ public class Player {
             nextRow=pos.getRow()+currentDirection.getDRow();
             nextCol=pos.getCol()+currentDirection.getDCol();
 
-            if (mapData.isValidMove(nextRow,nextCol)){
+            if (currentDirection==Game.Direction.NONE){
+                moving=false;
+            }else if (mapData.isValidMove(nextRow,nextCol)){
                 moving=true;
             } else {
                 moving=false;

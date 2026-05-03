@@ -5,11 +5,6 @@ public class BFSPathFinder {
 
     public ArrayList<Position> getFullShortestPath (Position start, Position goal, MapData mapData){
 
-        /*// If the ghost itself is somehow out of bounds, abort immediately to prevent a crash
-        if (start.getRow() < 0 || start.getRow() >= mapData.getRows() || start.getCol() < 0 || start.getCol() >= mapData.getCols()) {
-            return null;
-        }*/
-
         // first verify the goal is inside map bounds
         if (goal.getRow() < 0 || goal.getRow() >= mapData.getRows() || goal.getCol() < 0 || goal.getCol() >= mapData.getCols()) {
             return null;
