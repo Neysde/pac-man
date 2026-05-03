@@ -24,10 +24,11 @@ public class Game {
         public int getDCol() { return dCol; }
     }
 
-    private final Player player;
-    private final Enemy[] enemies;
+    private Player player;
+    private Enemy[] enemies;
     private GameState gameState;
     private final MapData mapData;
+    private int pelletCount;
     
 
     public Game(Player player, Enemy[] enemies, MapData mapData) {
@@ -35,17 +36,30 @@ public class Game {
         this.enemies = enemies;
         this.mapData = mapData;
         this.gameState = GameState.START_SCREEN;
+        // counts all pellets at start
+        for (int i=0;i< mapData.getRows();i++){
+            for(int j=0;j< mapData.getCols();j++){
+                if (mapData.hasPellet(i,j)){
+                    pelletCount++;
+                }
+            }
+        }
     }
 
-    public void update(){
+    public GameState update(){
         player.nextMove(mapData);
         for (Enemy enemy : enemies){
             enemy.move(player,mapData);
             if (checkCollision(player,enemy)){
                 System.out.println("Game Over");
-                break;
+                return GameState.LOST; // game over
             }
         }
+
+        if (player.getScore()/10==pelletCount){
+            return GameState.WON;
+        }
+        return GameState.PLAYING;
 
     }
 
@@ -61,6 +75,16 @@ public class Game {
         }
 
         return false;
+    }
+
+    public void restartGame(){
+        for (int i=0;i< mapData.getRows();i++){
+            for (int j=0;j< mapData.getCols();j++){
+                mapData.restorePellet(i,j);
+            }
+        }
+        player = new Player(mapData.getPlayerStart());
+        enemies = new Enemy[]{new Pinky(mapData.getPinkyStart(),new BFSPathFinder()), new Inky(mapData.getInkyStart(),new BFSPathFinder()), new Blinky(mapData.getBlinkyStart(),new BFSPathFinder())};
     }
 
     public Player getPlayer() {

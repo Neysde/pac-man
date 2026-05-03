@@ -42,25 +42,29 @@ public class Player {
         }
 
         if (moving){
-            visualRow+=currentDirection.getDRow()*0.10;
-            visualCol+=currentDirection.getDCol()*0.10;
+            visualRow+=currentDirection.getDRow()*0.2; // normally 0.10 for testing purposes increased
+            visualCol+=currentDirection.getDCol()*0.2;
         }
 
         // snaps the row and column to prevent decimal error
         int roundedRow = (int) Math.round(visualRow);
         int roundedCol = (int) Math.round(visualCol);
 
-        if (Math.abs(visualRow-roundedRow)<0.001){
+        if (Math.abs(visualRow-roundedRow)<0.06){
             visualRow=roundedRow;
 
         }
-        if (Math.abs(visualCol-roundedCol)<0.001){
+        if (Math.abs(visualCol-roundedCol)<0.06){
             visualCol=roundedCol;
         }
 
         // (if player snapped on the row and on the column) and (if row or column have changed)
         if ((visualRow==roundedRow && visualCol==roundedCol) && (visualRow!= pos.getRow() || visualCol!=pos.getCol())){
             pos=new Position(roundedRow,roundedCol);
+            if (mapData.hasPellet(pos.getRow(), pos.getCol())){
+                mapData.removePellet(pos.getRow(), pos.getCol());
+                score+=10;
+            }
         }
     }
 

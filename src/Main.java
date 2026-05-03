@@ -1,6 +1,7 @@
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.security.Key;
 import java.util.Scanner;
 
 public class Main {
@@ -24,41 +25,74 @@ public class Main {
             GameRenderer renderer = new GameRenderer(mapData, game);
             renderer.setupDraw();
 
+
+            boolean wasPauseKeyPressed=false;
+            boolean wasRestartKeyPressed=false;
+            long startTime=0; // stores the exact time in miliseconds when user pressed space at start.
             while(true){
                 if (StdDraw.isKeyPressed(KeyEvent.VK_SPACE) && game.getGameState()==Game.GameState.START_SCREEN){
+                    startTime=System.currentTimeMillis();
                     game.setGameState(Game.GameState.READY);
                 }
 
                 // moving from ready state to playing state when player wants to move
                 if (game.getGameState()==Game.GameState.READY){
-                    if (StdDraw.isKeyPressed(KeyEvent.VK_UP)){
+
+                    long elapsedTime=System.currentTimeMillis()-startTime;
+                    if (elapsedTime>=1000){
                         game.setGameState(Game.GameState.PLAYING);
-                        player.setRequestedDirection(Game.Direction.UP);
-                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_DOWN)) {
-                        game.setGameState(Game.GameState.PLAYING);
-                        player.setRequestedDirection(Game.Direction.DOWN);
-                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_LEFT)) {
-                        game.setGameState(Game.GameState.PLAYING);
-                        player.setRequestedDirection(Game.Direction.LEFT);
-                    } else if (StdDraw.isKeyPressed(KeyEvent.VK_RIGHT)) {
-                        game.setGameState(Game.GameState.PLAYING);
-                        player.setRequestedDirection(Game.Direction.RIGHT);
+                        game.getPlayer().setRequestedDirection(Game.Direction.RIGHT); // player has direction right by default
                     }
                 }
 
                 // taking direction requests
                 if (game.getGameState()==Game.GameState.PLAYING){
                     if (StdDraw.isKeyPressed(KeyEvent.VK_UP)){
-                        player.setRequestedDirection(Game.Direction.UP);
+                        game.getPlayer().setRequestedDirection(Game.Direction.UP);
                     } else if (StdDraw.isKeyPressed(KeyEvent.VK_DOWN)) {
-                        player.setRequestedDirection(Game.Direction.DOWN);
+                        game.getPlayer().setRequestedDirection(Game.Direction.DOWN);
                     } else if (StdDraw.isKeyPressed(KeyEvent.VK_LEFT)) {
-                        player.setRequestedDirection(Game.Direction.LEFT);
+                        game.getPlayer().setRequestedDirection(Game.Direction.LEFT);
                     } else if (StdDraw.isKeyPressed(KeyEvent.VK_RIGHT)) {
-                        player.setRequestedDirection(Game.Direction.RIGHT);
+                        game.getPlayer().setRequestedDirection(Game.Direction.RIGHT);
                     }
 
-                    game.update();
+                    game.setGameState(game.update());
+                }
+
+                // pause logic
+                if (game.getGameState()==Game.GameState.PLAYING || game.getGameState()==Game.GameState.PAUSED){
+                    if (StdDraw.isKeyPressed(KeyEvent.VK_P) && !wasPauseKeyPressed){
+                        if (game.getGameState()==Game.GameState.PLAYING){
+                            game.setGameState(Game.GameState.PAUSED);
+                        } else {
+                            game.setGameState(Game.GameState.PLAYING);
+                        }
+                    }
+                    if (StdDraw.isKeyPressed(KeyEvent.VK_P)){
+                        wasPauseKeyPressed=true;
+                    } else {
+                        wasPauseKeyPressed=false;
+                    }
+                }
+
+                // quit logic (from any state)
+                if (StdDraw.isKeyPressed(KeyEvent.VK_Q)){
+                    System.exit(0);
+                }
+
+                // when player lost or won, handles restart and quit operations
+                if (game.getGameState()==Game.GameState.LOST || game.getGameState()==Game.GameState.WON){
+                    // restart logic
+                    if (StdDraw.isKeyPressed(KeyEvent.VK_R) && !wasRestartKeyPressed){
+                        game.restartGame();
+                        game.setGameState(Game.GameState.START_SCREEN);
+                    }
+                    if (StdDraw.isKeyPressed(KeyEvent.VK_R)){
+                        wasRestartKeyPressed=true;
+                    } else {
+                        wasRestartKeyPressed=false;
+                    }
                 }
 
                 renderer.tickAnimation();

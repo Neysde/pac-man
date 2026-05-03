@@ -99,7 +99,7 @@ public abstract class Enemy {
             visualCol=roundedCol;
         }
 
-        // (if player snapped on the row and on the column) and (if row or column have changed)
+        // (if enemy snapped on the row and on the column) and (if row or column have changed)
         if ((visualRow==roundedRow && visualCol==roundedCol) && (visualRow!= pos.getRow() || visualCol!=pos.getCol())){
             pos=new Position(roundedRow,roundedCol);
         }
