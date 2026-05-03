@@ -7,6 +7,7 @@ public class Game {
         PAUSED,
         WON,
         LOST,
+        BACKTRACKING // added backtracking state for indicating backtracking
     }
 
     public enum Direction {
@@ -29,6 +30,9 @@ public class Game {
     private GameState gameState;
     private final MapData mapData;
     private int pelletCount;
+
+    // for backtracking
+    private Stack<Snapshot> memoryStack;
     
 
     public Game(Player player, Enemy[] enemies, MapData mapData) {
@@ -36,6 +40,7 @@ public class Game {
         this.enemies = enemies;
         this.mapData = mapData;
         this.gameState = GameState.START_SCREEN;
+        memoryStack=new Stack<>();
         // counts all pellets at start
         for (int i=0;i< mapData.getRows();i++){
             for(int j=0;j< mapData.getCols();j++){
@@ -48,13 +53,56 @@ public class Game {
 
     // handles player and enemy movement, collisions, states by returning game states
     public GameState update(){
+        // before evaluating movement etc. we take a snapshot of the game
+        Position playerCurrentPos = player.getPos();
+        int currentScore = player.getScore();
+        Position[] enemiesCurrentPositions = new Position[enemies.length];
+        boolean wasPelletEaten;
+        for (int i=0;i< enemies.length;i++){ // saves each enemies' position
+            enemiesCurrentPositions[i]=enemies[i].getPos();
+        }
+
         player.nextMove(mapData);
-        for (Enemy enemy : enemies){ // get each enemy, move them according each of their movement logic and if they collide with player game over
-            enemy.move(player,mapData);
-            if (checkCollision(player,enemy)){
+        for (int i=0;i< enemies.length;i++){ // get each enemy, move them according each of their movement logic and if they collide with player game over
+            enemies[i].move(player,mapData);
+
+            if (checkCollision(player,enemies[i])){
                 System.out.println("Game Over");
                 return GameState.LOST; // game over
             }
+        }
+
+        boolean needSnapshot=false; // whether a snapshot is needed
+
+        // checks whether the score or player position changed
+        if (player.getScore()!=currentScore || !player.getPos().equals(playerCurrentPos)){
+            needSnapshot=true;
+        }
+        // checks whether an enemy's posiiton changed
+        for (int i=0;i< enemies.length;i++) {
+            if (!enemies[i].getPos().equals(enemiesCurrentPositions[i])){
+                needSnapshot=true;
+            }
+        }
+
+        if (needSnapshot){
+            // determines whether a pellet is eaten or not by checking the score with previous saved score at the beginning
+            if (player.getScore()>currentScore){
+                wasPelletEaten=true;
+            } else {
+                wasPelletEaten=false;
+            }
+
+            Position[] enemiesEvaluatedPositions = new Position[enemies.length];
+            Direction[] enemiesEvaluatedDirections = new Direction[enemies.length];
+
+            for (int j=0;j<enemies.length;j++){ // gets enemies' positions and directions after their movement etc.
+                enemiesEvaluatedPositions[j]=enemies[j].getPos();
+                enemiesEvaluatedDirections[j]=enemies[j].getDirection();
+            }
+
+            // pushes the snapshot to the stack
+            memoryStack.push(new Snapshot(player.getPos(),player.getScore(),wasPelletEaten,enemiesEvaluatedPositions,enemiesEvaluatedDirections,player.getCurrentDirection()));
         }
 
         if (player.getScore()/10==pelletCount){ // when player collects all pellets (each pellet gives +10 score)
@@ -107,4 +155,11 @@ public class Game {
     public void setGameState(GameState gameState) {
         this.gameState = gameState;
     }
+
+    // memory stack getter
+    public Stack<Snapshot> getMemoryStack() {
+        return memoryStack;
+    }
+
+
 }

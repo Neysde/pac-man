@@ -85,16 +85,43 @@ public class Main {
 
                 // when player lost or won, handles restart and quit operations
                 if (game.getGameState()==Game.GameState.LOST || game.getGameState()==Game.GameState.WON){
-                    // restart logic
+                    // backtracking logic
                     if (StdDraw.isKeyPressed(KeyEvent.VK_R) && !wasRestartKeyPressed){ // only pauses when pressed and was not pressed the previous frame
-                        game.restartGame();
-                        game.setGameState(Game.GameState.START_SCREEN);
+                        game.setGameState(Game.GameState.BACKTRACKING);
                     }
                     // save the key status to prevent flickering
                     if (StdDraw.isKeyPressed(KeyEvent.VK_R)){
                         wasRestartKeyPressed=true;
                     } else {
                         wasRestartKeyPressed=false;
+                    }
+                }
+
+                // when backtracking
+                if (game.getGameState()==Game.GameState.BACKTRACKING){
+                    if (game.getMemoryStack().isEmpty()){ // if its empty, we came back to start
+                        game.restartGame();
+                        game.setGameState(Game.GameState.START_SCREEN);
+                    } else {
+                        Snapshot poppedSnapshot = game.getMemoryStack().pop(); // gets the snapshot from the stack
+                        game.getPlayer().setPos(poppedSnapshot.getPlayerCurrentPos()); // sets position
+                        game.getPlayer().setScore(poppedSnapshot.getCurrentScore()); // sets score
+                        // sets visual row and col
+                        game.getPlayer().setVisualRow(poppedSnapshot.getPlayerCurrentPos().getRow());
+                        game.getPlayer().setVisualCol(poppedSnapshot.getPlayerCurrentPos().getCol());
+                        // sets player direction
+                        game.getPlayer().setCurrentDirection(poppedSnapshot.getPlayerEvaluatedDirection());
+                        // for putting enemies
+                        for (int i=0;i<game.getEnemies().length;i++){
+                            game.getEnemies()[i].setDirection(poppedSnapshot.getEnemiesEvaluatedDirections()[i]); // sets enemy direction
+                            game.getEnemies()[i].setPos(poppedSnapshot.getEnemiesEvaluatedPositions()[i]); // sets enemy pos
+                            // sets visual row and col
+                            game.getEnemies()[i].setVisualRow(poppedSnapshot.getEnemiesEvaluatedPositions()[i].getRow());
+                            game.getEnemies()[i].setVisualCol(poppedSnapshot.getEnemiesEvaluatedPositions()[i].getCol());
+                        }
+                        if (poppedSnapshot.isWasPelletEaten()){ // restores the pellet if eaten
+                            mapData.restorePellet(poppedSnapshot.getPlayerCurrentPos().getRow(),poppedSnapshot.getPlayerCurrentPos().getCol());
+                        }
                     }
                 }
 

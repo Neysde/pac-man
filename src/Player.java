@@ -106,4 +106,27 @@ public class Player {
     public void setRequestedDirection(Game.Direction requestedDirection) {
         this.requestedDirection = requestedDirection;
     }
+
+    // position setter to be used in backtracking logic to change the position
+    public void setPos(Position pos) {
+        this.pos = pos;
+    }
+    // score setter to be used in backtracking logic to change the score
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    // setter for visual row and col to make sure player perfectly match its logical row and col when backtracking(player is not sliding when backtracking)
+    public void setVisualRow(double visualRow) {
+        this.visualRow = visualRow;
+    }
+
+    public void setVisualCol(double visualCol) {
+        this.visualCol = visualCol;
+    }
+
+    // current direction setter (when backtracking, requested direction does not rotate the player we need to set current direction directly)
+    public void setCurrentDirection(Game.Direction currentDirection) {
+        this.currentDirection = currentDirection;
+    }
 }
