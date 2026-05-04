@@ -49,6 +49,7 @@ public class Game {
                 }
             }
         }
+        System.out.println(pelletCount);
     }
 
     // handles player and enemy movement, collisions, states by returning game states
@@ -63,6 +64,7 @@ public class Game {
         }
 
         player.nextMove(mapData);
+        System.out.println("Score: " + player.getScore() + " | Pellets Eaten: " + (player.getScore()/10));
         for (int i=0;i< enemies.length;i++){ // get each enemy, move them according each of their movement logic and if they collide with player game over
             enemies[i].move(player,mapData);
 
@@ -130,13 +132,10 @@ public class Game {
 
     // restart function
     public void restartGame(){
-        for (int i=0;i< mapData.getRows();i++){ // restores all pellets by looping all map row and cols
-            for (int j=0;j< mapData.getCols();j++){
-                mapData.restorePellet(i,j);
-            }
-        }
+        mapData.resetMap();
         player = new Player(mapData.getPlayerStart()); // resets player object by creating a new player object
         enemies = new Enemy[]{new Pinky(mapData.getPinkyStart(),new BFSPathFinder()), new Inky(mapData.getInkyStart(),new BFSPathFinder()), new Blinky(mapData.getBlinkyStart(),new BFSPathFinder())}; // resets enemies by creating each of them again
+        memoryStack = new Stack<>(); // clears the memory stack for the new game
     }
 
     public Player getPlayer() {

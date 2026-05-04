@@ -29,7 +29,7 @@ public class Queue<T> {
     // removes(returns) element from front to fulfill fifo
     public T dequeue(){
         T tempItem = list[front];
-        // increments the front pointer by 1 each time when a new element added to point the available index properly
+        // increments the front pointer by 1 each time when a new element removed from the point the available index properly
         front=(front+1)%capacity; //to prevent out of bound error it comes back to start if index becomes more than array last index.
         size-=1; // decreases size
         return tempItem;

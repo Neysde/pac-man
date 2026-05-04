@@ -19,8 +19,6 @@ public class BFSPathFinder {
 
         visited[start.getRow()][start.getCol()]=true; // start pos initially visited
 
-
-
         // checks until there is no position left on the queue
         while(!tiles.isEmpty()){
             Position current = tiles.dequeue();

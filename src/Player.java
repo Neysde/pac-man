@@ -49,8 +49,8 @@ public class Player {
 
         // gives player smooth movement by changing the visual row and col every frame by adding a partial value of direction delta
         if (moving){
-            visualRow+=currentDirection.getDRow()*0.10;
-            visualCol+=currentDirection.getDCol()*0.10;
+            visualRow+=currentDirection.getDRow()*0.20;
+            visualCol+=currentDirection.getDCol()*0.20;
         }
 
         // snaps the row and column to prevent decimal error
@@ -58,7 +58,6 @@ public class Player {
         int roundedCol = (int) Math.round(visualCol);
         if (Math.abs(visualRow-roundedRow)<0.06){
             visualRow=roundedRow;
-
         }
         if (Math.abs(visualCol-roundedCol)<0.06){
             visualCol=roundedCol;

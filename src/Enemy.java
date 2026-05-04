@@ -82,7 +82,6 @@ public abstract class Enemy {
             } else {
                 direction=getDirectionFromPositions(pos,path.get(1)); // 0 is the start position in path arraylist
             }
-
         }
 
         // enemies move slower than player visually
@@ -96,7 +95,6 @@ public abstract class Enemy {
         int roundedCol = (int) Math.round(visualCol);
         if (Math.abs(visualRow-roundedRow)<0.06){
             visualRow=roundedRow;
-
         }
         if (Math.abs(visualCol-roundedCol)<0.06){
             visualCol=roundedCol;
